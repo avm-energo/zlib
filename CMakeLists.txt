@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12...3.31)
 
 project(
-    zlib
+    avm-zlib
     LANGUAGES C
     VERSION 1.4.1.1
     HOMEPAGE_URL "https://git.avmenergo.ru/avm-energo/zlib"
@@ -11,9 +11,6 @@ project(
 # configuration
 # ============================================================================
 
-option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
-option(ZLIB_BUILD_STATIC "Enable building zlib static library" OFF)
-
 include(CheckCSourceCompiles)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
@@ -22,12 +19,12 @@ include(CheckTypeSize)
 include(GNUInstallDirs)
 
 if(NOT ZLIB_CONF_WRITTEN)
-    set(CONF_OUT_FILE ${zlib_BINARY_DIR}/zconf.h.cmakein)
-    file(READ ${zlib_SOURCE_DIR}/zconf.h ZCONF_CONTENT LIMIT 245)
+    set(CONF_OUT_FILE ${PROJECT_BINARY_DIR}/zconf.h.cmakein)
+    file(READ ${PROJECT_SOURCE_DIR}/zconf.h ZCONF_CONTENT LIMIT 245)
     file(WRITE ${CONF_OUT_FILE} ${ZCONF_CONTENT})
     file(APPEND ${CONF_OUT_FILE} "#cmakedefine HAVE_STDARG_H 1\n")
     file(APPEND ${CONF_OUT_FILE} "#cmakedefine HAVE_UNISTD_H 1\n")
-    file(READ ${zlib_SOURCE_DIR}/zconf.h ZCONF_CONTENT OFFSET 244)
+    file(READ ${PROJECT_SOURCE_DIR}/zconf.h ZCONF_CONTENT OFFSET 244)
     set(FIRST_ITEM TRUE)
 
     foreach(item IN LISTS ZCONF_CONTENT)
@@ -79,7 +76,7 @@ if(UNIX)
     set_target_properties(
         ${PROJECT_NAME}
         PROPERTIES LINK_FLAGS
-                   "-Wl,--version-script,\"${zlib_SOURCE_DIR}/zlib.map\"")
+                   "-Wl,--version-script,\"${PROJECT_SOURCE_DIR}/zlib.map\"")
 endif(UNIX)
 
 check_c_source_compiles(
@@ -91,13 +88,13 @@ check_c_source_compiles(
     HAVE___ATTR__VIS_HIDDEN)
 
 unset(CMAKE_COMPILE_FLAGS)
-configure_file(${zlib_BINARY_DIR}/zconf.h.cmakein ${zlib_BINARY_DIR}/zconf.h)
+configure_file(${PROJECT_BINARY_DIR}/zconf.h.cmakein ${PROJECT_BINARY_DIR}/zconf.h)
 
 # ============================================================================
 # zlib
 # ============================================================================
 
-set(ZLIB_PUBLIC_HDRS ${zlib_BINARY_DIR}/zconf.h zlib.h)
+set(ZLIB_PUBLIC_HDRS ${PROJECT_BINARY_DIR}/zconf.h zlib.h)
 
 set(ZLIB_PRIVATE_HDRS
     crc32.h
@@ -147,8 +144,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 target_include_directories(
     ${PROJECT_NAME}
-    PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-           $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
+    PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+           $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # add synonim for zlib

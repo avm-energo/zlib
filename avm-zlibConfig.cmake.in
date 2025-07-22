@@ -2,13 +2,11 @@
 
 set(_ZLIB_supported_components "")
 
-if(@ZLIB_BUILD_SHARED@)
+if(@BUILD_SHARED_LIBS@)
     list(APPEND _ZLIB_supported_components shared)
-endif(@ZLIB_BUILD_SHARED@)
-
-if(@ZLIB_BUILD_STATIC@)
+else()
     list(APPEND _ZLIB_supported_components static)
-endif(@ZLIB_BUILD_STATIC@)
+endif(@BUILD_SHARED_LIBS@)
 
 if(ZLIB_FIND_COMPONENTS)
     foreach(_comp ${ZLIB_FIND_COMPONENTS})
