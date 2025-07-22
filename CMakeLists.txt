@@ -4,57 +4,27 @@ project(
     zlib
     LANGUAGES C
     VERSION 1.4.1.1
-    HOMEPAGE_URL "https://zlib.net/"
+    HOMEPAGE_URL "https://git.avmenergo.ru/avm-energo/zlib"
     DESCRIPTION "a general-purpose lossless data-compression library")
-
-# ============================================================================
-# CPack
-# ============================================================================
-set(CPACK_PACKAGE_VENDOR "zlib-Project")
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${zlib_SOURCE_DIR}/README)
-set(CPACK_RESOURCE_FILE_LICENSE ${zlib_SOURCE_DIR}/LICENSE)
-set(CPACK_RESOURCE_FILE_README ${zlib_SOURCE_DIR}/README)
 
 # ============================================================================
 # configuration
 # ============================================================================
 
-option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
-option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
-option(ZLIB_BUILD_MINIZIP "Enable building libminizip contrib library" OFF)
-option(ZLIB_INSTALL "Enable installation of zlib" ON)
-option(ZLIB_PREFIX "prefix for all types and library functions, see zconf.h.in"
-       OFF)
-mark_as_advanced(ZLIB_PREFIX)
-
-if(WIN32)
-    option(ZLIB_INSTALL_COMPAT_DLL "Install a copy as zlib1.dll" ON)
-endif(WIN32)
-
-get_property(IS_MULTI GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-
-if(NOT DEFINED CMAKE_BUILD_TYPE AND NOT IS_MULTI)
-    message(STATUS "No CMAKE_BUILD_TYPE set -- using Release")
-    set(CMAKE_BUILD_TYPE Release)
-endif(NOT DEFINED CMAKE_BUILD_TYPE AND NOT IS_MULTI)
+option(ZLIB_BUILD_STATIC "Enable building zlib static library" OFF)
 
 include(CheckCSourceCompiles)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CMakePackageConfigHelpers)
 include(CheckTypeSize)
-include(CPack)
 include(GNUInstallDirs)
 
-set(CPACK_INCLUDED TRUE)
-
 if(NOT ZLIB_CONF_WRITTEN)
-    set(Z_PREFIX ${ZLIB_PREFIX})
     set(CONF_OUT_FILE ${zlib_BINARY_DIR}/zconf.h.cmakein)
     file(READ ${zlib_SOURCE_DIR}/zconf.h ZCONF_CONTENT LIMIT 245)
     file(WRITE ${CONF_OUT_FILE} ${ZCONF_CONTENT})
-    file(APPEND ${CONF_OUT_FILE} "#cmakedefine Z_PREFIX 1\n")
     file(APPEND ${CONF_OUT_FILE} "#cmakedefine HAVE_STDARG_H 1\n")
     file(APPEND ${CONF_OUT_FILE} "#cmakedefine HAVE_UNISTD_H 1\n")
     file(READ ${zlib_SOURCE_DIR}/zconf.h ZCONF_CONTENT OFFSET 244)
@@ -98,14 +68,19 @@ check_include_file(stdarg.h HAVE_STDARG_H)
 #
 check_include_file(unistd.h HAVE_UNISTD_H)
 
-#
-# Check visibility attribute is supported
-#
 if(MSVC)
     set(CMAKE_REQUIRED_FLAGS "-WX")
 else(MSVC)
     set(CMAKE_REQUIRED_FLAGS "-WError")
 endif(MSVC)
+
+if(UNIX)
+    # On unix-like platforms the library is almost always called libz
+    set_target_properties(
+        ${PROJECT_NAME}
+        PROPERTIES LINK_FLAGS
+                   "-Wl,--version-script,\"${zlib_SOURCE_DIR}/zlib.map\"")
+endif(UNIX)
 
 check_c_source_compiles(
     "
@@ -116,8 +91,6 @@ check_c_source_compiles(
     HAVE___ATTR__VIS_HIDDEN)
 
 unset(CMAKE_COMPILE_FLAGS)
-set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
-configure_file(${zlib_SOURCE_DIR}/zlib.pc.cmakein ${ZLIB_PC} @ONLY)
 configure_file(${zlib_BINARY_DIR}/zconf.h.cmakein ${zlib_BINARY_DIR}/zconf.h)
 
 # ============================================================================
@@ -154,177 +127,60 @@ set(ZLIB_SRCS
     uncompr.c
     zutil.c)
 
-if(WIN32)
-    set(zlib_static_suffix "s")
-    set(CMAKE_DEBUG_POSTFIX "d")
-endif(WIN32)
-
-if(ZLIB_BUILD_SHARED)
+if(BUILD_SHARED_LIBS)
     add_library(
-        zlib SHARED ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS}
-                    $<$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>>:win32/zlib1.rc>)
-    add_library(ZLIB::ZLIB ALIAS zlib)
-    target_include_directories(
-        zlib
-        PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-               $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
-               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-    target_compile_definitions(
-        zlib
-        PRIVATE ZLIB_BUILD
-                $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
-                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>
-                $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
-                $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
-        PUBLIC $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
-    set(INSTALL_VERSION ${zlib_VERSION})
-
-    if(NOT CYGWIN)
-        set_target_properties(zlib PROPERTIES SOVERSION ${zlib_VERSION_MAJOR}
-                                              VERSION ${INSTALL_VERSION})
-    endif(NOT CYGWIN)
-
-    set_target_properties(
-        zlib
-        PROPERTIES DEFINE_SYMBOL ZLIB_DLL
-                   EXPORT_NAME ZLIB
-                   OUTPUT_NAME z)
-    if(UNIX
-       AND NOT APPLE
-       AND NOT (CMAKE_SYSTEM_NAME STREQUAL AIX))
-        # On unix-like platforms the library is almost always called libz
-        set_target_properties(
-            zlib
-            PROPERTIES LINK_FLAGS
-                       "-Wl,--version-script,\"${zlib_SOURCE_DIR}/zlib.map\"")
-    endif(
-        UNIX
-        AND NOT APPLE
-        AND NOT (CMAKE_SYSTEM_NAME STREQUAL AIX))
-endif(ZLIB_BUILD_SHARED)
-
-if(ZLIB_BUILD_STATIC)
-    add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS}
+        ${PROJECT_NAME} SHARED ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+    target_compile_definitions(${PROJECT_NAME} PRIVATE -DZLIB_EXPORTS)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE -DZLIB_IMPORTS)
+else()
+    add_library(${PROJECT_NAME} STATIC ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS}
                                   ${ZLIB_PRIVATE_HDRS})
-    add_library(ZLIB::ZLIBSTATIC ALIAS zlibstatic)
-    target_include_directories(
-        zlibstatic
-        PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-               $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
-               $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-    target_compile_definitions(
-        zlibstatic
-        PRIVATE ZLIB_BUILD
-                $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
-                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>
-                $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
-                $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
-        PUBLIC $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
-    set_target_properties(
-        zlibstatic PROPERTIES EXPORT_NAME ZLIBSTATIC OUTPUT_NAME
-                                                     z${zlib_static_suffix})
-endif(ZLIB_BUILD_STATIC)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DHAVE_STATIC_BUILD)
+endif()
 
-if(ZLIB_INSTALL)
-    if(ZLIB_BUILD_SHARED)
-        install(
-            TARGETS zlib
-            COMPONENT Runtime
-            EXPORT zlibSharedExport
-            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-        install(
-            EXPORT zlibSharedExport
-            FILE ZLIB-shared.cmake
-            NAMESPACE ZLIB::
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
-        if(ZLIB_INSTALL_COMPAT_DLL)
-            install(
-                FILES $<TARGET_FILE:zlib>
-                COMPONENT Runtime
-                RENAME zlib1.dll
-                DESTINATION "${CMAKE_INSTALL_BINDIR}")
-        endif(ZLIB_INSTALL_COMPAT_DLL)
+# Set project version as gen target property
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  VERSION ${PROJECT_VERSION}
+  SOVERSION ${PROJECT_VERSION_MAJOR}
+  PUBLIC_HEADER "${public_headers}"
+)
 
-        if(MSVC)
-            install(
-                FILES $<TARGET_PDB_FILE:zlib>
-                COMPONENT Runtime
-                DESTINATION ${CMAKE_INSTALL_BINDIR}
-                CONFIGURATIONS Debug OR RelWithDebInfo
-                OPTIONAL)
-        endif(MSVC)
-    endif(ZLIB_BUILD_SHARED)
+target_include_directories(
+    ${PROJECT_NAME}
+    PUBLIC $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
+           $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-    if(ZLIB_BUILD_STATIC)
-        install(
-            TARGETS zlibstatic
-            COMPONENT Development
-            EXPORT zlibStaticExport
-            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-            ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-        install(
-            EXPORT zlibStaticExport
-            FILE ZLIB-static.cmake
-            NAMESPACE ZLIB::
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
+# add synonim for zlib
+add_library(avm-energo::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-        if(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
-            install(
-                FILES $<TARGET_FILE:zlibstatic>
-                COMPONENT Development
-                RENAME libz.dll.a
-                DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-        endif(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
-    endif(ZLIB_BUILD_STATIC)
+install(
+    TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}_Targets
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-    configure_package_config_file(
-        ${zlib_SOURCE_DIR}/zlibConfig.cmake.in
-        ${zlib_BINARY_DIR}/ZLIBConfig.cmake
-        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+    INSTALL_DESTINATION
+    ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-    write_basic_package_version_file(
-        "${zlib_BINARY_DIR}/ZLIBConfigVersion.cmake"
-        VERSION "${zlib_VERSION}"
-        COMPATIBILITY AnyNewerVersion)
+write_basic_package_version_file(${PROJECT_NAME}ConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion)
 
-    install(FILES ${zlib_BINARY_DIR}/ZLIBConfig.cmake
-                  ${zlib_BINARY_DIR}/ZLIBConfigVersion.cmake
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
-    install(
-        FILES ${ZLIB_PUBLIC_HDRS}
-        COMPONENT Development
-        DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-    install(
-        FILES zlib.3
-        COMPONENT Docs
-        DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
-    install(
-        FILES LICENSE
-              doc/algorithm.txt
-              doc/crc-doc.1.0.pdf
-              doc/rfc1950.txt
-              doc/rfc1951.txt
-              doc/rfc1952.txt
-              doc/txtvsbin.txt
-        COMPONENT Docs
-        DESTINATION "${CMAKE_INSTALL_DOCDIR}/zlib")
-    install(
-        FILES ${ZLIB_PC}
-        COMPONENT Development
-        DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-endif(ZLIB_INSTALL)
+install(EXPORT ${PROJECT_NAME}_Targets
+        FILE ${PROJECT_NAME}Targets.cmake
+        NAMESPACE ${PROJECT_NAME}::
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-# ============================================================================
-# Tests
-# ============================================================================
-if(ZLIB_BUILD_TESTING)
-    enable_testing()
-    add_subdirectory(test)
-endif(ZLIB_BUILD_TESTING)
+install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+        "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-if(ZLIB_BUILD_MINIZIP)
-    add_subdirectory(contrib/minizip/)
-endif(ZLIB_BUILD_MINIZIP)
+set(VERSION_IN ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in)
+set(VERSION_OUT ${CMAKE_CURRENT_SOURCE_DIR}/package/src/VERSION)
+configure_file(${VERSION_IN} ${VERSION_OUT} @ONLY)

@@ -8,200 +8,6 @@
 #ifndef ZCONF_H
 #define ZCONF_H
 
-/*
- * If you *really* need a unique prefix for all types and library functions,
- * compile with -DZ_PREFIX. The "standard" zlib should be compiled without it.
- * Even better than compiling with -DZ_PREFIX would be to use configure to set
- * this permanently in zconf.h using "./configure --zprefix".
- */
-#ifdef Z_PREFIX     /* may be set to #if 1 by ./configure */
-#  define Z_PREFIX_SET
-
-/* all linked symbols and init macros */
-#  define _dist_code            z__dist_code
-#  define _length_code          z__length_code
-#  define _tr_align             z__tr_align
-#  define _tr_flush_bits        z__tr_flush_bits
-#  define _tr_flush_block       z__tr_flush_block
-#  define _tr_init              z__tr_init
-#  define _tr_stored_block      z__tr_stored_block
-#  define _tr_tally             z__tr_tally
-#  define adler32               z_adler32
-#  define adler32_combine       z_adler32_combine
-#  define adler32_combine64     z_adler32_combine64
-#  define adler32_z             z_adler32_z
-#  ifndef Z_SOLO
-#    define compress              z_compress
-#    define compress2             z_compress2
-#    define compressBound         z_compressBound
-#  endif
-#  define crc32                 z_crc32
-#  define crc32_combine         z_crc32_combine
-#  define crc32_combine64       z_crc32_combine64
-#  define crc32_combine_gen     z_crc32_combine_gen
-#  define crc32_combine_gen64   z_crc32_combine_gen64
-#  define crc32_combine_op      z_crc32_combine_op
-#  define crc32_z               z_crc32_z
-#  define deflate               z_deflate
-#  define deflateBound          z_deflateBound
-#  define deflateCopy           z_deflateCopy
-#  define deflateEnd            z_deflateEnd
-#  define deflateGetDictionary  z_deflateGetDictionary
-#  define deflateInit           z_deflateInit
-#  define deflateInit2          z_deflateInit2
-#  define deflateInit2_         z_deflateInit2_
-#  define deflateInit_          z_deflateInit_
-#  define deflateParams         z_deflateParams
-#  define deflatePending        z_deflatePending
-#  define deflatePrime          z_deflatePrime
-#  define deflateReset          z_deflateReset
-#  define deflateResetKeep      z_deflateResetKeep
-#  define deflateSetDictionary  z_deflateSetDictionary
-#  define deflateSetHeader      z_deflateSetHeader
-#  define deflateTune           z_deflateTune
-#  define deflateUsed           z_deflateUsed
-#  define deflate_copyright     z_deflate_copyright
-#  define get_crc_table         z_get_crc_table
-#  ifndef Z_SOLO
-#    define gz_error              z_gz_error
-#    define gz_intmax             z_gz_intmax
-#    define gz_strwinerror        z_gz_strwinerror
-#    define gzbuffer              z_gzbuffer
-#    define gzclearerr            z_gzclearerr
-#    define gzclose               z_gzclose
-#    define gzclose_r             z_gzclose_r
-#    define gzclose_w             z_gzclose_w
-#    define gzdirect              z_gzdirect
-#    define gzdopen               z_gzdopen
-#    define gzeof                 z_gzeof
-#    define gzerror               z_gzerror
-#    define gzflush               z_gzflush
-#    define gzfread               z_gzfread
-#    define gzfwrite              z_gzfwrite
-#    define gzgetc                z_gzgetc
-#    define gzgetc_               z_gzgetc_
-#    define gzgets                z_gzgets
-#    define gzoffset              z_gzoffset
-#    define gzoffset64            z_gzoffset64
-#    define gzopen                z_gzopen
-#    define gzopen64              z_gzopen64
-#    ifdef _WIN32
-#      define gzopen_w              z_gzopen_w
-#    endif
-#    define gzprintf              z_gzprintf
-#    define gzputc                z_gzputc
-#    define gzputs                z_gzputs
-#    define gzread                z_gzread
-#    define gzrewind              z_gzrewind
-#    define gzseek                z_gzseek
-#    define gzseek64              z_gzseek64
-#    define gzsetparams           z_gzsetparams
-#    define gztell                z_gztell
-#    define gztell64              z_gztell64
-#    define gzungetc              z_gzungetc
-#    define gzvprintf             z_gzvprintf
-#    define gzwrite               z_gzwrite
-#  endif
-#  define inflate               z_inflate
-#  define inflateBack           z_inflateBack
-#  define inflateBackEnd        z_inflateBackEnd
-#  define inflateBackInit       z_inflateBackInit
-#  define inflateBackInit_      z_inflateBackInit_
-#  define inflateCodesUsed      z_inflateCodesUsed
-#  define inflateCopy           z_inflateCopy
-#  define inflateEnd            z_inflateEnd
-#  define inflateGetDictionary  z_inflateGetDictionary
-#  define inflateGetHeader      z_inflateGetHeader
-#  define inflateInit           z_inflateInit
-#  define inflateInit2          z_inflateInit2
-#  define inflateInit2_         z_inflateInit2_
-#  define inflateInit_          z_inflateInit_
-#  define inflateMark           z_inflateMark
-#  define inflatePrime          z_inflatePrime
-#  define inflateReset          z_inflateReset
-#  define inflateReset2         z_inflateReset2
-#  define inflateResetKeep      z_inflateResetKeep
-#  define inflateSetDictionary  z_inflateSetDictionary
-#  define inflateSync           z_inflateSync
-#  define inflateSyncPoint      z_inflateSyncPoint
-#  define inflateUndermine      z_inflateUndermine
-#  define inflateValidate       z_inflateValidate
-#  define inflate_copyright     z_inflate_copyright
-#  define inflate_fast          z_inflate_fast
-#  define inflate_table         z_inflate_table
-#  ifndef Z_SOLO
-#    define uncompress            z_uncompress
-#    define uncompress2           z_uncompress2
-#  endif
-#  define zError                z_zError
-#  ifndef Z_SOLO
-#    define zcalloc               z_zcalloc
-#    define zcfree                z_zcfree
-#  endif
-#  define zlibCompileFlags      z_zlibCompileFlags
-#  define zlibVersion           z_zlibVersion
-
-/* all zlib typedefs in zlib.h and zconf.h */
-#  define Byte                  z_Byte
-#  define Bytef                 z_Bytef
-#  define alloc_func            z_alloc_func
-#  define charf                 z_charf
-#  define free_func             z_free_func
-#  ifndef Z_SOLO
-#    define gzFile                z_gzFile
-#  endif
-#  define gz_header             z_gz_header
-#  define gz_headerp            z_gz_headerp
-#  define in_func               z_in_func
-#  define intf                  z_intf
-#  define out_func              z_out_func
-#  define uInt                  z_uInt
-#  define uIntf                 z_uIntf
-#  define uLong                 z_uLong
-#  define uLongf                z_uLongf
-#  define voidp                 z_voidp
-#  define voidpc                z_voidpc
-#  define voidpf                z_voidpf
-
-/* all zlib structs in zlib.h and zconf.h */
-#  define gz_header_s           z_gz_header_s
-#  define internal_state        z_internal_state
-
-#endif
-
-#if defined(__MSDOS__) && !defined(MSDOS)
-#  define MSDOS
-#endif
-#if (defined(OS_2) || defined(__OS2__)) && !defined(OS2)
-#  define OS2
-#endif
-#if defined(_WINDOWS) && !defined(WINDOWS)
-#  define WINDOWS
-#endif
-#if defined(_WIN32) || defined(_WIN32_WCE) || defined(__WIN32__)
-#  ifndef WIN32
-#    define WIN32
-#  endif
-#endif
-#if (defined(MSDOS) || defined(OS2) || defined(WINDOWS)) && !defined(WIN32)
-#  if !defined(__GNUC__) && !defined(__FLAT__) && !defined(__386__)
-#    ifndef SYS16BIT
-#      define SYS16BIT
-#    endif
-#  endif
-#endif
-
-/*
- * Compile with -DMAXSEG_64K if the alloc function cannot allocate more
- * than 64k bytes at a time (needed on systems with 16-bit int).
- */
-#ifdef SYS16BIT
-#  define MAXSEG_64K
-#endif
-#ifdef MSDOS
-#  define UNALIGNED_OK
-#endif
-
 #ifdef __STDC_VERSION__
 #  ifndef STDC
 #    define STDC
@@ -219,13 +25,6 @@
 #  define STDC
 #endif
 #if !defined(STDC) && (defined(MSDOS) || defined(WINDOWS) || defined(WIN32))
-#  define STDC
-#endif
-#if !defined(STDC) && (defined(OS2) || defined(__HOS_AIX__))
-#  define STDC
-#endif
-
-#if defined(__OS400__) && !defined(STDC)    /* iSeries (formerly AS/400). */
 #  define STDC
 #endif
 
@@ -303,79 +102,22 @@
 #  endif
 #endif
 
-/* The following definitions for FAR are needed only for MSDOS mixed
- * model programming (small or medium model with some far allocations).
- * This was tested only with MSC; for other MSDOS compilers you may have
- * to define NO_MEMCPY in zutil.h.  If you don't need the mixed model,
- * just define FAR to be empty.
- */
-#ifdef SYS16BIT
-#  if defined(M_I86SM) || defined(M_I86MM)
-     /* MSC small or medium model */
-#    define SMALL_MEDIUM
-#    ifdef _MSC_VER
-#      define FAR _far
-#    else
-#      define FAR far
-#    endif
-#  endif
-#  if (defined(__SMALL__) || defined(__MEDIUM__))
-     /* Turbo C small or medium model */
-#    define SMALL_MEDIUM
-#    ifdef __BORLANDC__
-#      define FAR _far
-#    else
-#      define FAR far
-#    endif
-#  endif
-#endif
-
-#if defined(WINDOWS) || defined(WIN32)
-   /* If building or using zlib as a DLL, define ZLIB_DLL.
-    * This is not mandatory, but it offers a little performance increase.
-    */
-#  ifdef ZLIB_DLL
-#    if defined(WIN32) && (!defined(__BORLANDC__) || (__BORLANDC__ >= 0x500))
-#      ifdef ZLIB_INTERNAL
-#        define ZEXTERN extern __declspec(dllexport)
-#      else
-#        define ZEXTERN extern __declspec(dllimport)
-#      endif
-#    endif
-#  endif  /* ZLIB_DLL */
-   /* If building or using zlib with the WINAPI/WINAPIV calling convention,
-    * define ZLIB_WINAPI.
-    * Caution: the standard ZLIB1.DLL is NOT compiled using ZLIB_WINAPI.
-    */
-#  ifdef ZLIB_WINAPI
-#    ifdef FAR
-#      undef FAR
-#    endif
-#    ifndef WIN32_LEAN_AND_MEAN
-#      define WIN32_LEAN_AND_MEAN
-#    endif
-#    include <windows.h>
-     /* No need for _export, use ZLIB.DEF instead. */
-     /* For complete Windows compatibility, use WINAPI, not __stdcall. */
-#    define ZEXPORT WINAPI
-#    ifdef WIN32
-#      define ZEXPORTVA WINAPIV
-#    else
-#      define ZEXPORTVA FAR CDECL
-#    endif
-#  endif
-#endif
-
-#if defined (__BEOS__)
-#  ifdef ZLIB_DLL
-#    ifdef ZLIB_INTERNAL
-#      define ZEXPORT   __declspec(dllexport)
-#      define ZEXPORTVA __declspec(dllexport)
-#    else
-#      define ZEXPORT   __declspec(dllimport)
-#      define ZEXPORTVA __declspec(dllimport)
-#    endif
-#  endif
+#if defined(WIN32)
+  #if defined(ZLIB_EXPORTS)
+    #define ZEXTERN extern __declspec(dllexport)
+  #elif defined(ZLIB_IMPORTS)
+    #define ZEXTERN extern __declspec(dllimport)
+  #else
+    #define ZEXTERN
+  #endif
+#else
+  #if defined(ZLIB_EXPORTS)
+    #define ZEXTERN __attribute__((visibility("default")))
+  #elif defined(ZLIB_IMPORTS)
+    #define ZEXTERN __attribute__((visibility("default")))
+  #else
+    #define ZEXTERN
+  #endif
 #endif
 
 #ifndef ZEXTERN
