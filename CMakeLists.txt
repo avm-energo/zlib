@@ -71,14 +71,6 @@ else(MSVC)
     set(CMAKE_REQUIRED_FLAGS "-WError")
 endif(MSVC)
 
-if(UNIX)
-    # On unix-like platforms the library is almost always called libz
-    set_target_properties(
-        ${PROJECT_NAME}
-        PROPERTIES LINK_FLAGS
-                   "-Wl,--version-script,\"${PROJECT_SOURCE_DIR}/zlib.map\"")
-endif(UNIX)
-
 check_c_source_compiles(
     "
         #include <stdlib.h>
@@ -88,6 +80,7 @@ check_c_source_compiles(
     HAVE___ATTR__VIS_HIDDEN)
 
 unset(CMAKE_COMPILE_FLAGS)
+
 configure_file(${PROJECT_BINARY_DIR}/zconf.h.cmakein ${PROJECT_BINARY_DIR}/zconf.h)
 
 # ============================================================================
@@ -134,6 +127,14 @@ else()
                                   ${ZLIB_PRIVATE_HDRS})
     target_compile_definitions(${PROJECT_NAME} PUBLIC -DHAVE_STATIC_BUILD)
 endif()
+
+if(UNIX)
+    # On unix-like platforms the library is almost always called libz
+    set_target_properties(
+        ${PROJECT_NAME}
+        PROPERTIES LINK_FLAGS
+                   "-Wl,--version-script,\"${PROJECT_SOURCE_DIR}/zlib.map\"")
+endif(UNIX)
 
 # Set project version as gen target property
 set_target_properties(${PROJECT_NAME} PROPERTIES
