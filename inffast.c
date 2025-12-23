@@ -63,11 +63,11 @@ void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start) {
     unsigned char FAR *window;  /* allocated sliding window, if wsize != 0 */
     unsigned long hold;         /* local strm->hold */
     unsigned bits;              /* local strm->bits */
-    code const FAR *lcode;      /* local strm->lencode */
-    code const FAR *dcode;      /* local strm->distcode */
+    struct code const FAR *lcode;      /* local strm->lencode */
+    struct code const FAR *dcode;      /* local strm->distcode */
     unsigned lmask;             /* mask for first level of length codes */
     unsigned dmask;             /* mask for first level of distance codes */
-    code const *here;           /* retrieved table entry */
+    struct code const *here;           /* retrieved table entry */
     unsigned op;                /* code bits, operation, extra bits, or */
                                 /*  window position, window bytes to copy */
     unsigned len;               /* match length, unused bytes */

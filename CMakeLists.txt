@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12...3.31)
 project(
     avm-zlib
     LANGUAGES C
-    VERSION 1.4.1.1
+    VERSION 1.4.2
     HOMEPAGE_URL "https://git.avmenergo.ru/avm-energo/zlib"
     DESCRIPTION "a general-purpose lossless data-compression library")
 

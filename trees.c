@@ -78,8 +78,6 @@ local const uch bl_order[BL_CODES]
  * Local data. These are initialized only once.
  */
 
-#define DIST_CODE_LEN  512 /* see definition of array dist_code below */
-
 #if defined(GEN_TREES_H) || !defined(STDC)
 /* non ANSI compilers may not accept trees.h */
 

@@ -8,4 +8,6 @@
    subject to change. Applications should only use zlib.h.
  */
 
+#include "zutil.h"
+
 void ZLIB_INTERNAL inflate_fast(z_streamp strm, unsigned start);

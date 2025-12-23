@@ -249,8 +249,8 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
     unsigned bits;              /* bits in bit buffer */
     unsigned copy;              /* number of stored or match bytes to copy */
     unsigned char FAR *from;    /* where to copy match bytes from */
-    code here;                  /* current decoding table entry */
-    code last;                  /* parent table entry */
+    struct code here;                  /* current decoding table entry */
+    struct code last;                  /* parent table entry */
     unsigned len;               /* length to copy for repeats, bits to drop */
     int ret;                    /* return code */
     static const unsigned short order[19] = /* permutation of code lengths */
@@ -370,7 +370,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             while (state->have < 19)
                 state->lens[order[state->have++]] = 0;
             state->next = state->codes;
-            state->lencode = (code const FAR *)(state->next);
+            state->lencode = (struct code const FAR *)(state->next);
             state->lenbits = 7;
             ret = inflate_table(CODES, state->lens, 19, &(state->next),
                                 &(state->lenbits), state->work);
@@ -444,7 +444,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                values here (9 and 6) without reading the comments in inftrees.h
                concerning the ENOUGH constants, which depend on those values */
             state->next = state->codes;
-            state->lencode = (code const FAR *)(state->next);
+            state->lencode = (struct code const FAR *)(state->next);
             state->lenbits = 9;
             ret = inflate_table(LENS, state->lens, state->nlen, &(state->next),
                                 &(state->lenbits), state->work);
@@ -453,7 +453,7 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                 state->mode = BAD;
                 break;
             }
-            state->distcode = (code const FAR *)(state->next);
+            state->distcode = (struct code const FAR *)(state->next);
             state->distbits = 6;
             ret = inflate_table(DISTS, state->lens + state->nlen, state->ndist,
                             &(state->next), &(state->distbits), state->work);
