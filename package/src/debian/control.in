@@ -1,0 +1,8 @@
+Source: libavm-zlib
+Priority: optional
+Maintainer: AVM-Energo <support@avmenergo.ru>
+Section: devel
+
+Package: libavm-zlib
+Description: ZLib for AVM-Energo projects
+Depends: ${shlibs:Depends}

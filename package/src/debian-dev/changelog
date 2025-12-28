@@ -1,0 +1,13 @@
+libavm-zlib-dev (1.4.2) unstable; urgency=low
+
+  [+] package
+  [+] some includes missed
+
+ -- AVM-Energo <support@avmenergo.ru>  Sun, 28 Dec 2025 20:39:01 +0300
+
+libavm-zlib-dev (1.4.1) unstable; urgency=low
+
+  [+] forking from the project ZLib: https://github.com/madler/zlib
+  [-] unused catalogs
+
+ -- AVM-Energo <support@avmenergo.ru>  Mon, 4 Aug 2025 19:01:35 +0300
