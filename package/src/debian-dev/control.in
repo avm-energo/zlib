@@ -5,4 +5,5 @@ Section: devel
 
 Package: libavm-zlib-dev
 Description: ZLib for AVM-Energo projects development files
+Architecture: amd64
 Depends: ${shlibs:Depends}
