@@ -28,16 +28,15 @@
   (zlib format), rfc1951 (deflate format) and rfc1952 (gzip format).
 */
 
-#ifndef ZLIB_H
-#define ZLIB_H
+#pragma once
 
-#include <zconf.h>
+#include <avm-zconf.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define ZLIB_VERSION "1.3.1.1-motley"
+#define ZLIB_VERSION "1.4.3"
 #define ZLIB_VERNUM 0x1311
 #define ZLIB_VER_MAJOR 1
 #define ZLIB_VER_MINOR 3
@@ -1083,7 +1082,7 @@ ZEXTERN int ZEXPORT inflateBackInit(z_streamp strm, int windowBits,
    the version of the header file.
 */
 
-typedef unsigned (*in_func)(void FAR *, z_const unsigned char FAR *FAR *);
+typedef unsigned (*in_func)(void FAR *, z_const unsigned char FAR * FAR *);
 typedef int (*out_func)(void FAR *, unsigned char FAR *, unsigned);
 
 ZEXTERN int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
@@ -1910,5 +1909,3 @@ ZEXTERN int ZEXPORTVA gzvprintf(gzFile file, const char *format, va_list va);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* ZLIB_H */

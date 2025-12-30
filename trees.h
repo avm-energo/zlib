@@ -1,4 +1,5 @@
 /* header created automatically with -DGEN_TREES_H */
+#pragma once
 #include "deflate.h"
 #include "zutil.h"
 

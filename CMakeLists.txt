@@ -4,7 +4,7 @@ project(
     avm-zlib
     LANGUAGES C
     VERSION 1.4.2
-    HOMEPAGE_URL "https://git.avmenergo.ru/avm-energo/zlib"
+    HOMEPAGE_URL "https://git.avmenergo.ru/avm-energo/zlib.git"
     DESCRIPTION "a general-purpose lossless data-compression library")
 
 # ============================================================================
@@ -19,12 +19,12 @@ include(CheckTypeSize)
 include(GNUInstallDirs)
 
 if(NOT ZLIB_CONF_WRITTEN)
-    set(CONF_OUT_FILE ${PROJECT_BINARY_DIR}/zconf.h.cmakein)
-    file(READ ${PROJECT_SOURCE_DIR}/zconf.h ZCONF_CONTENT LIMIT 245)
+    set(CONF_OUT_FILE ${PROJECT_BINARY_DIR}/avm-zconf.h.cmakein)
+    file(READ ${PROJECT_SOURCE_DIR}/avm-zconf.h ZCONF_CONTENT LIMIT 245)
     file(WRITE ${CONF_OUT_FILE} ${ZCONF_CONTENT})
     file(APPEND ${CONF_OUT_FILE} "#cmakedefine HAVE_STDARG_H 1\n")
     file(APPEND ${CONF_OUT_FILE} "#cmakedefine HAVE_UNISTD_H 1\n")
-    file(READ ${PROJECT_SOURCE_DIR}/zconf.h ZCONF_CONTENT OFFSET 244)
+    file(READ ${PROJECT_SOURCE_DIR}/avm-zconf.h ZCONF_CONTENT OFFSET 244)
     set(FIRST_ITEM TRUE)
 
     foreach(item IN LISTS ZCONF_CONTENT)
@@ -39,7 +39,7 @@ if(NOT ZLIB_CONF_WRITTEN)
     file(APPEND ${CONF_OUT_FILE} ${OUT_CONTENT})
     set(ZLIB_CONF_WRITTEN
         TRUE
-        CACHE BOOL "zconf.h.cmakein was created")
+        CACHE BOOL "avm-zconf.h.cmakein was created")
     mark_as_advanced(ZLIB_CONF_WRITTEN)
 endif(NOT ZLIB_CONF_WRITTEN)
 
@@ -81,13 +81,13 @@ check_c_source_compiles(
 
 unset(CMAKE_COMPILE_FLAGS)
 
-configure_file(${PROJECT_BINARY_DIR}/zconf.h.cmakein ${PROJECT_BINARY_DIR}/zconf.h)
+configure_file(${PROJECT_BINARY_DIR}/avm-zconf.h.cmakein ${PROJECT_BINARY_DIR}/avm-zconf.h)
 
 # ============================================================================
 # zlib
 # ============================================================================
 
-set(ZLIB_PUBLIC_HDRS ${PROJECT_BINARY_DIR}/zconf.h zlib.h)
+set(ZLIB_PUBLIC_HDRS ${PROJECT_BINARY_DIR}/avm-zconf.h avm-zlib.h)
 
 set(ZLIB_PRIVATE_HDRS
     crc32.h
@@ -136,11 +136,17 @@ if(UNIX)
                    "-Wl,--version-script,\"${PROJECT_SOURCE_DIR}/zlib.map\"")
 endif(UNIX)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+  AUTOMOC OFF
+  AUTOUIC OFF
+  AUTORCC OFF
+)
+
 # Set project version as gen target property
 set_target_properties(${PROJECT_NAME} PROPERTIES
   VERSION ${PROJECT_VERSION}
   SOVERSION ${PROJECT_VERSION_MAJOR}
-  PUBLIC_HEADER "${public_headers}"
+  PUBLIC_HEADER "${ZLIB_PUBLIC_HDRS}"
 )
 
 target_include_directories(
@@ -152,12 +158,8 @@ target_include_directories(
 # add synonim for zlib
 add_library(avm-energo::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
-install(TARGETS ${PROJECT_NAME}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+set(PROJECT_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    CACHE STRING "Path to ${PROJECT_NAME} CMake files")
 
 install(
     TARGETS ${PROJECT_NAME}
@@ -171,7 +173,7 @@ configure_package_config_file(
     ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in
     "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
     INSTALL_DESTINATION
-    ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+    ${PROJECT_INSTALL_CMAKEDIR})
 
 write_basic_package_version_file(${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${PROJECT_VERSION}
@@ -180,11 +182,11 @@ write_basic_package_version_file(${PROJECT_NAME}ConfigVersion.cmake
 install(EXPORT ${PROJECT_NAME}_Targets
         FILE ${PROJECT_NAME}Targets.cmake
         NAMESPACE ${PROJECT_NAME}::
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+        DESTINATION ${PROJECT_INSTALL_CMAKEDIR})
 
 install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
         "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
+        DESTINATION ${PROJECT_INSTALL_CMAKEDIR})
 
 set(VERSION_IN ${CMAKE_CURRENT_SOURCE_DIR}/VERSION.in)
 set(VERSION_OUT ${CMAKE_CURRENT_SOURCE_DIR}/package/src/VERSION)
