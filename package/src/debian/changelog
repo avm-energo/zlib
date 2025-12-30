@@ -1,3 +1,10 @@
+libavm-zlib (2.0.0) unstable; urgency=low
+
+  [-] cleaning unused files
+  [*] renaming zconf.h and zlib.h to avm- to prevent intersection with system zlib
+
+ -- AVM-Energo <support@avmenergo.ru>  Tue, 30 Dec 2025 15:13:47 +0300
+
 libavm-zlib (1.4.2) unstable; urgency=low
 
   [+] package
