@@ -18,7 +18,6 @@ include(CMakePackageConfigHelpers)
 include(CheckTypeSize)
 include(GNUInstallDirs)
 
-if(NOT ZLIB_CONF_WRITTEN)
     set(CONF_OUT_FILE ${PROJECT_BINARY_DIR}/avm-zconf.h.cmakein)
     file(READ ${PROJECT_SOURCE_DIR}/avm-zconf.h ZCONF_CONTENT LIMIT 245)
     file(WRITE ${CONF_OUT_FILE} ${ZCONF_CONTENT})
@@ -37,11 +36,6 @@ if(NOT ZLIB_CONF_WRITTEN)
     endforeach(item IN LISTS ${ZCONF_CONTENT})
 
     file(APPEND ${CONF_OUT_FILE} ${OUT_CONTENT})
-    set(ZLIB_CONF_WRITTEN
-        TRUE
-        CACHE BOOL "avm-zconf.h.cmakein was created")
-    mark_as_advanced(ZLIB_CONF_WRITTEN)
-endif(NOT ZLIB_CONF_WRITTEN)
 
 #
 # Check to see if we have large file support
